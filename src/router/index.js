@@ -13,6 +13,10 @@ const routes = [
     name: 'AppointmentsByDate',
     component: SearchAppointments
   },
+  {
+    path: '/:catchAll(.*)',
+    redirect: '/'
+  }
 ]
 
 const router = createRouter({
