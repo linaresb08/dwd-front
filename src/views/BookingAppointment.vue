@@ -220,7 +220,7 @@ export default {
             this.showAlert({
               icon: "success",
               title: "Awesome!",
-              text: "Appointment saved. See you soon",
+              text: `Appointment saved for ${this.appointment.date} at ${this.appointment.startTime} hrs. See you soon`,
             });
 
             this.appointment = new Appointment("", "", "");
