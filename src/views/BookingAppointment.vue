@@ -304,7 +304,7 @@ h2 {
   background: rgba(255, 255, 255, 0.95);
   border: 1px solid #fbfbfb;
   border-radius: 1.7rem;
-  margin: 2.25rem clamp(-2.7rem, -20%, -1.7rem);
+  margin: 2.25rem clamp(-1.55rem, -20%, 0rem);
   padding: 2.25rem clamp(1.7rem, 20%, 2.7rem);
 }
 
