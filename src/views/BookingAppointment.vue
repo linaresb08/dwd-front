@@ -42,7 +42,7 @@
           >
             <input
               type="radio"
-              v-model="appointment.startTime"
+              v-model.number="appointment.startTime"
               :value="hour"
               name="available-hours"
               class="d-none"
@@ -54,7 +54,7 @@
                   : ['far', 'circle']
               "
             />
-            {{ hour }}
+            {{ hour }}hrs
           </label>
         </fieldset>
       </div>
@@ -144,7 +144,7 @@ export default {
                 (appointment) => appointment.email
               );
               const notAvailableHours = appointments.map(
-                (appointment) => appointment.startTime
+                (appointment) => Number(appointment.startTime)
               );
 
               if (notAvailableHours.length < 9) {
@@ -319,6 +319,7 @@ h2 {
 .radio__buttons > .option {
   cursor: pointer;
   padding: 0.5rem 0;
+  white-space: nowrap;
 }
 .radio__buttons > .option.option--selected {
   color: var(--primary-shade);

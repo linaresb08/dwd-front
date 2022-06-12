@@ -28,7 +28,7 @@
         <p>
           <span class="fw-bold mr-1">{{ appointment.date.split("T")[0] }}</span>
           -
-          <span class="mr-1">{{ appointment.startTime }}</span>
+          <span class="mr-1">{{ appointment.startTime }} hrs</span>
           <small class="d-block fs-italic">{{ appointment.email }}</small>
         </p>
         <div>

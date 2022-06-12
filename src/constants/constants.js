@@ -6,7 +6,7 @@ const emailRegex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+")
 const globalUrl = 'http://localhost:3900/api/'
 
 // * Working hours
-const workingHours = ['9hrs', '10hrs', '11hrs', '12hrs', '13hrs', '14hrs', '15hrs', '16hrs', '17hrs']
+const workingHours = [9, 10, 11, 12, 13, 14, 15, 16, 17]
 
 
 export {
