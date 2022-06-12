@@ -23,8 +23,7 @@
         <router-link to="/appointments" tabindex="3">
           <li class="menu__item">
             <fa-icon icon="search" size="sm" />
-            Search
-            <span class="fs--inherit d-none d-lg-inline">all</span>
+            Search all
           </li>
         </router-link>
       </ul>

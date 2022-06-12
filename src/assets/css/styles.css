@@ -45,10 +45,6 @@ small {
   color: rgb(252, 132, 33);
 }
 
-.fs--inherit {
-  font-size: inherit;
-}
-
 .fw-bold {
   font-weight: 600;
 }
@@ -67,12 +63,6 @@ small {
 
 .d-block {
   display: block;
-}
-
-@media screen and (min-width: 992px) {
-  .d-lg-inline {
-    display: inline;
-  }
 }
 
 
