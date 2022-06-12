@@ -73,7 +73,8 @@
         class="btn--block btn--primary mt-4"
         :disabled="disableButton"
       >
-        <fa-icon icon="calendar-check" size="sm" class="mr-1" />
+        <fa-icon v-if="disableButton" icon="circle-notch" size="sm" class="fa-spin mr-1" />
+        <fa-icon v-else icon="calendar-check" size="sm" class="mr-1" />
         Save date
       </button>
     </form>

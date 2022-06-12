@@ -11,8 +11,13 @@
           type="date"
           class="form-control"
         />
-        <button type="submit" class="btn btn--primary">
-          <fa-icon icon="search" size="sm" class="mr-1" />Search
+        <button
+          type="submit"
+          class="btn btn--primary"
+          :disabled="disableButton"
+        >
+          <fa-icon v-if="disableButton" icon="circle-notch" size="sm" class="fa-spin mr-1" />
+          <fa-icon v-else icon="search" size="sm" class="mr-1" />Search
         </button>
       </div>
     </form>
@@ -62,6 +67,7 @@ export default {
     return {
       appointments: [],
       date: this.$route.params.date,
+      disableButton: false,
       selectedDate: "",
     };
   },
@@ -74,11 +80,15 @@ export default {
       if (date.length) {
         endpoint = `${endpoint}/${date}`;
       }
+
+      this.disableButton = true;
+
       axios.get(`${endpoint}`).then((res) => {
         if (res.data.status === "success") {
           this.appointments = res.data.appointments;
         }
       });
+      this.disableButton = false;
     },
     showAlert(options) {
       // Use sweetalert2
