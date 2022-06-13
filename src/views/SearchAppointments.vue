@@ -21,9 +21,14 @@
         </button>
       </div>
     </form>
-    <div v-if="!appointments.length" class="display-2">
+    <p v-if="disableButton" class="display-2">
+      <fa-icon icon="circle-notch" size="lg" class="fa-spin mr-1" />
+      Checking appointments
+    </p>
+    <p v-else-if="!disableButton && !appointments.length" class="display-2">
+      <fa-icon icon="calendar-times" size="lg" class="mr-1" />
       There are no appointments for this day
-    </div>
+    </p>
     <ul v-if="appointments && appointments.length">
       <li
         v-for="appointment in appointments"
