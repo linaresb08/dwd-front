@@ -5,7 +5,7 @@
       <h2>APPOINTMENT</h2>
       <p>And have the chance to learn to dance with the master</p>
     </header>
-    <appointment-form class="form__card" />
+    <appointment-form class="card__container" />
     <div class="image__container">
       <img src="/imgs/dwd.png" alt="Dancing with the Death" class="image" />
     </div>
@@ -55,10 +55,7 @@ h2 {
 /*
  * Form
  */
-.form__card {
-  background: rgba(255, 255, 255, 0.95);
-  border: 1px solid #fbfbfb;
-  border-radius: 1.7rem;
+.card__container {
   margin: 2.25rem clamp(-1.55rem, -20%, 0rem);
   padding: 2.25rem clamp(1.7rem, 20%, 2.7rem);
 }

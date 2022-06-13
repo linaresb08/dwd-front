@@ -237,3 +237,8 @@ input:focus {
   font-weight: 600;
   margin-bottom: 2rem;
 }
+
+/* SweetAlert2 set border-radius */
+.swal2-popup {
+  border-radius: 1.7rem !important;
+}
