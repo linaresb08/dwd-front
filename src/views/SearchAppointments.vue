@@ -11,8 +11,13 @@
           type="date"
           class="form-control"
         />
-        <button type="submit" class="btn btn--primary">
-          <fa-icon icon="search" size="sm" class="mr-1" />Search
+        <button
+          type="submit"
+          class="btn btn--primary"
+          :disabled="disableButton"
+        >
+          <fa-icon v-if="disableButton" icon="circle-notch" size="sm" class="fa-spin mr-1" />
+          <fa-icon v-else icon="search" size="sm" class="mr-1" />Search
         </button>
       </div>
     </form>
@@ -22,16 +27,34 @@
     <ul v-if="appointments && appointments.length">
       <li
         v-for="appointment in appointments"
-        :key="`${appointment.date.split('T')[0]}-${appointment.startTime}`"
+        :key="`${appointment.date}-${appointment.startTime}`"
       >
-        <fa-icon icon="check-circle" class="mr-1" />
+        <fa-icon
+          v-if="appointment.date < todayDate"
+          icon="check-circle" class="mr-1"
+        />
+        <fa-icon v-else :icon="['far', 'circle']" class="mr-1" />
         <p>
-          <span class="fw-bold mr-1">{{ appointment.date.split("T")[0] }}</span>
+          <span class="fw-bold mr-1">{{ appointment.date }}</span>
           -
-          <span class="mr-1">{{ appointment.startTime }}</span>
+          <span class="mr-1">{{ appointment.startTime }} hrs</span>
           <small class="d-block fs-italic">{{ appointment.email }}</small>
         </p>
-        <div>
+        <div v-if="appointment.date < todayDate">
+          <button
+            class="btn--outlined"
+            @click="
+              showAlert({
+                icon: 'success',
+                title: 'Completed class!',
+                text: `${appointment.email} has successfully completed class with master for ${appointment.date} at ${appointment.startTime} hrs until ${appointment.startTime + 1} hrs. Congratulations`,
+              })
+            "
+          >
+            <fa-icon icon="plus" size="sm" class="mr-1" />Details
+          </button>
+        </div>
+        <div v-else>
           <button class="btn--primary" @click="showAlertDelete(appointment._id)">
             <fa-icon icon="trash" size="sm" class="mr-1" />Delete
           </button>
@@ -62,7 +85,9 @@ export default {
     return {
       appointments: [],
       date: this.$route.params.date,
+      disableButton: false,
       selectedDate: "",
+      todayDate: new Date().toISOString().split("T")[0],
     };
   },
   mounted() {
@@ -74,11 +99,20 @@ export default {
       if (date.length) {
         endpoint = `${endpoint}/${date}`;
       }
+
+      this.disableButton = true;
+
       axios.get(`${endpoint}`).then((res) => {
         if (res.data.status === "success") {
-          this.appointments = res.data.appointments;
+          this.appointments = res.data.appointments.map(appointment => {
+            appointment.date = appointment.date.split("T")[0];
+            appointment.startTime = Number(appointment.startTime);
+            return appointment;
+          });
         }
       });
+
+      this.disableButton = false;
     },
     showAlert(options) {
       // Use sweetalert2

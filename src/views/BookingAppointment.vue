@@ -42,7 +42,7 @@
           >
             <input
               type="radio"
-              v-model="appointment.startTime"
+              v-model.number="appointment.startTime"
               :value="hour"
               name="available-hours"
               class="d-none"
@@ -54,7 +54,7 @@
                   : ['far', 'circle']
               "
             />
-            {{ hour }}
+            {{ hour }}hrs
           </label>
         </fieldset>
       </div>
@@ -73,7 +73,8 @@
         class="btn--block btn--primary mt-4"
         :disabled="disableButton"
       >
-        <fa-icon icon="calendar-check" size="sm" class="mr-1" />
+        <fa-icon v-if="disableButton" icon="circle-notch" size="sm" class="fa-spin mr-1" />
+        <fa-icon v-else icon="calendar-check" size="sm" class="mr-1" />
         Save date
       </button>
     </form>
@@ -144,7 +145,7 @@ export default {
                 (appointment) => appointment.email
               );
               const notAvailableHours = appointments.map(
-                (appointment) => appointment.startTime
+                (appointment) => Number(appointment.startTime)
               );
 
               if (notAvailableHours.length < 9) {
@@ -219,7 +220,7 @@ export default {
             this.showAlert({
               icon: "success",
               title: "Awesome!",
-              text: "Appointment saved. See you soon",
+              text: `Appointment saved for ${this.appointment.date} at ${this.appointment.startTime} hrs. See you soon`,
             });
 
             this.appointment = new Appointment("", "", "");
@@ -304,7 +305,7 @@ h2 {
   background: rgba(255, 255, 255, 0.95);
   border: 1px solid #fbfbfb;
   border-radius: 1.7rem;
-  margin: 2.25rem clamp(-2.7rem, -20%, -1.7rem);
+  margin: 2.25rem clamp(-1.55rem, -20%, 0rem);
   padding: 2.25rem clamp(1.7rem, 20%, 2.7rem);
 }
 
@@ -319,6 +320,7 @@ h2 {
 .radio__buttons > .option {
   cursor: pointer;
   padding: 0.5rem 0;
+  white-space: nowrap;
 }
 .radio__buttons > .option.option--selected {
   color: var(--primary-shade);
