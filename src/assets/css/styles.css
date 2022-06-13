@@ -45,6 +45,10 @@ small {
   color: rgb(252, 132, 33);
 }
 
+.fs-inherit {
+  font-size: inherit;
+}
+
 .fw-bold {
   font-weight: 600;
 }
@@ -69,12 +73,14 @@ small {
 /*
  * Spacings - Margins
  */
-.mt-4 {
-  margin-top: 1.5rem;
+.mb-1 {
+  margin-bottom: .25rem;
 }
-
 .mr-1 {
   margin-right: .25rem;
+}
+.mt-4 {
+  margin-top: 1.5rem;
 }
 
 
@@ -192,6 +198,7 @@ input:focus {
   flex: 2 1 auto;
 }
 
+
 /*
  * Radio buttons
  */
@@ -210,4 +217,23 @@ input:focus {
 }
 .radio__buttons > .option.option--selected {
   color: var(--primary-shade);
+}
+
+
+/*
+ * Specific containers
+ */
+.card__container {
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid #fbfbfb;
+  border-radius: 1.7rem;
+  margin: 2rem auto;
+  padding: 2.25rem clamp(1.7rem, 5%, 2.7rem);
+}
+
+.card__container > header {
+  color: var(--primary);
+  font-size: 2rem;
+  font-weight: 600;
+  margin-bottom: 2rem;
 }

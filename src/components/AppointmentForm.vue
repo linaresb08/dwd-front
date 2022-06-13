@@ -25,7 +25,22 @@
     </small>
     <div v-else class="mt-4">
       <fieldset class="radio__buttons">
-        <legend>Choose your preffered hour at day</legend>
+        <legend>
+          Choose your preffered hour at day
+          <small
+            v-if="isEditing"
+            class="d-block mb-1 fw-bold"
+          >
+            Previous pick at
+            {{ Appointment.startTime }} hrs
+            <span
+              v-if="Appointment.date !== appointment.date"
+              class="fs-inherit"
+            >
+              for {{ Appointment.date }}
+            </span>
+          </small>
+        </legend>
         <label
           v-for="hour in availableHours"
           :key="hour"
@@ -81,7 +96,18 @@ import { emailRegex, globalUrl, workingHours } from "@/constants/constants";
 
 export default {
   name: 'AppointmentForm',
-
+  props: {
+    Appointment: {
+      type: Object,
+      default() {
+        return new Appointment("", "", "");
+      }
+    },
+    isEditing: {
+      type: Boolean,
+      default: false
+    },
+  },
   data() {
     return {
       appointment: new Appointment("", "", ""),
@@ -97,8 +123,18 @@ export default {
   },
   mounted() {
     this.setCurrentMonth();
+    if (this.isEditing) {
+      this.appointment = JSON.parse(JSON.stringify(this.Appointment));
+      this.findAvailableHours(this.appointment.date)
+    }
   },
   methods: {
+    cleanForm() {
+      this.appointment = new Appointment("", "", "");
+      this.availableHours = [];
+      this.disableButton = false;
+      this.scheduledPeople = [];
+    },
     findAvailableHours(date) {
       // * Format date to YYYY-MM-DD to know if it's a working day
       const dateSplit = date.split("-");
@@ -148,6 +184,7 @@ export default {
               }
               this.availableHours = availableHours;
             } else {
+              this.scheduledPeople = [];
               this.availableHours = workingHours;
             }
           }
@@ -194,46 +231,78 @@ export default {
       }
 
       // * Validate an appointment for the same date
-      if (this.scheduledPeople.includes(this.appointment.email)) {
+      if (this.scheduledPeople.includes(this.appointment.email) && !this.isEditing) {
         return this.showAlert({
           icon: "warning",
           title: "Sorry...",
+          text: "You already have an appointment for this date. Please select another date",
+        });
+      } else if (this.scheduledPeople.includes(this.appointment.email) && this.isEditing
+        && this.appointment.date !== this.Appointment.date) {
+        return this.showAlert({
+          icon: "warning",
+          title: "Change not allowed",
           text: "You already have an appointment for this date. Please select another date",
         });
       }
 
       this.disableButton = true;
 
-      axios
-        .post(`${globalUrl}save`, this.appointment)
-        .then((res) => {
-          if (res.data.status === "success") {
-            this.showAlert({
-              icon: "success",
-              title: "Awesome!",
-              text: `Appointment saved for ${this.appointment.date} at ${this.appointment.startTime} hrs. See you soon`,
-            });
-
-            this.appointment = new Appointment("", "", "");
-            this.availableHours = [];
-            this.disableButton = false;
-            this.scheduledPeople = [];
-          } else {
+      if (this.isEditing) {
+        axios.put(`${globalUrl}appointment/${this.appointment._id}`, this.appointment)
+          .then((res) => {
+            if (res.data.status === "success") {
+              this.showAlert({
+                icon: "success",
+                title: "Success!",
+                text: `Your appointment has been updated for ${this.appointment.date} at ${this.appointment.startTime} hrs to ${this.appointment.email}`,
+              });
+              this.cleanForm();
+              this.$emit("close");
+            } else {
+              this.showAlert({
+                icon: "error",
+                title: "Oops...",
+                text: res.data.message,
+              });
+            }
+          })
+          .catch((error) => {
             this.showAlert({
               icon: "error",
-              title: "Something went wrong",
-              text: "Error saving appointment",
+              title: "Oops...",
+              text: "We receive this error: " + error.response.data.message,
             });
-          }
-        })
-        .catch((error) => {
-          this.showAlert({
-            icon: "error",
-            title: "Oops...",
-            text: "We receive this error: " + error.response.data.message,
-            timer: 2000,
           });
-        });
+      } else {
+        axios
+          .post(`${globalUrl}save`, this.appointment)
+          .then((res) => {
+            if (res.data.status === "success") {
+              this.showAlert({
+                icon: "success",
+                title: "Awesome!",
+                text: `Appointment saved for ${this.appointment.date} at ${this.appointment.startTime} hrs. See you soon`,
+              });
+
+              this.cleanForm();
+            } else {
+              this.showAlert({
+                icon: "error",
+                title: "Something went wrong",
+                text: "Error saving appointment",
+              });
+            }
+          })
+          .catch((error) => {
+            this.showAlert({
+              icon: "error",
+              title: "Oops...",
+              text: "We receive this error: " + error.response.data.message,
+              timer: 2000,
+            });
+          });
+      }
     },
     setCurrentMonth() {
       // * Calculate min and max date
