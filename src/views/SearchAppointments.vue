@@ -28,7 +28,10 @@
       </p>
       <p v-else-if="!disableButton && !appointments.length" class="display-2">
         <fa-icon icon="calendar-times" size="lg" class="mr-1" />
-        There are no appointments for this day
+        There are no appointments
+        <span v-if="selectedDate" class="fs-inherit">
+          for this day
+        </span>
       </p>
       <ul v-if="appointments && appointments.length">
         <li
