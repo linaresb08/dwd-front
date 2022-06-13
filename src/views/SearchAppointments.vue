@@ -1,92 +1,106 @@
 <template>
-  <section>
-    <header>Appointment list by day</header>
+  <div>
+    <section class="card__container">
+      <header>Appointment list by day</header>
 
-    <form @submit.prevent="getAppointments(selectedDate)">
-      <div class="input-group">
-        <label for="date">Select a date</label>
-        <input
-          id="date"
-          v-model="selectedDate"
-          type="date"
-          class="form-control"
-        />
-        <button
-          type="submit"
-          class="btn btn--primary"
-          :disabled="disableButton"
+      <form @submit.prevent="getAppointments(selectedDate)">
+        <div class="input-group">
+          <label for="date">Select a date</label>
+          <input
+            id="date"
+            v-model="selectedDate"
+            type="date"
+            class="form-control"
+          />
+          <button
+            type="submit"
+            class="btn btn--primary"
+            :disabled="disableButton"
+          >
+            <fa-icon v-if="disableButton" icon="circle-notch" size="sm" class="fa-spin mr-1" />
+            <fa-icon v-else icon="search" size="sm" class="mr-1" />Search
+          </button>
+        </div>
+      </form>
+      <p v-if="disableButton" class="display-2">
+        <fa-icon icon="circle-notch" size="lg" class="fa-spin mr-1" />
+        Checking appointments
+      </p>
+      <p v-else-if="!disableButton && !appointments.length" class="display-2">
+        <fa-icon icon="calendar-times" size="lg" class="mr-1" />
+        There are no appointments for this day
+      </p>
+      <ul v-if="appointments && appointments.length">
+        <li
+          v-for="appointment in appointments"
+          :key="`${appointment.date}-${appointment.startTime}`"
         >
-          <fa-icon v-if="disableButton" icon="circle-notch" size="sm" class="fa-spin mr-1" />
-          <fa-icon v-else icon="search" size="sm" class="mr-1" />Search
-        </button>
-      </div>
-    </form>
-    <div v-if="!appointments.length" class="display-2">
-      There are no appointments for this day
-    </div>
-    <ul v-if="appointments && appointments.length">
-      <li
-        v-for="appointment in appointments"
-        :key="`${appointment.date}-${appointment.startTime}`"
-      >
-        <fa-icon
-          v-if="appointment.date < todayDate"
-          icon="check-circle" class="mr-1"
-        />
-        <fa-icon v-else :icon="['far', 'circle']" class="mr-1" />
-        <p>
-          <span class="fw-bold mr-1">{{ appointment.date }}</span>
-          -
-          <span class="mr-1">{{ appointment.startTime }} hrs</span>
-          <small class="d-block fs-italic">{{ appointment.email }}</small>
-        </p>
-        <div v-if="appointment.date < todayDate">
-          <button
-            class="btn--outlined"
-            @click="
-              showAlert({
-                icon: 'success',
-                title: 'Completed class!',
-                text: `${appointment.email} has successfully completed class with master for ${appointment.date} at ${appointment.startTime} hrs until ${appointment.startTime + 1} hrs. Congratulations`,
-              })
-            "
-          >
-            <fa-icon icon="plus" size="sm" class="mr-1" />Details
-          </button>
-        </div>
-        <div v-else>
-          <button class="btn--primary" @click="showAlertDelete(appointment._id)">
-            <fa-icon icon="trash" size="sm" class="mr-1" />Delete
-          </button>
-          <button
-            class="btn--outlined"
-            @click="
-              showAlert({
-                icon: 'warning',
-                title: 'Sorry...',
-                text: 'This action is not available from the client side.',
-              })
-            "
-          >
-            <fa-icon icon="pen" size="sm" class="mr-1" />Edit
-          </button>
-        </div>
-      </li>
-    </ul>
-  </section>
+          <fa-icon
+            v-if="appointment.date < todayDate"
+            icon="check-circle" class="mr-1"
+          />
+          <fa-icon v-else :icon="['far', 'circle']" class="mr-1" />
+          <p>
+            <span class="fw-bold mr-1">{{ appointment.date }}</span>
+            -
+            <span class="mr-1">{{ appointment.startTime }} hrs</span>
+            <small class="d-block fs-italic">{{ appointment.email }}</small>
+          </p>
+          <div v-if="appointment.date < todayDate">
+            <button
+              class="btn--outlined"
+              @click="
+                showAlert({
+                  icon: 'success',
+                  title: 'Completed class!',
+                  text: `${appointment.email} has successfully completed class with master for ${appointment.date} at ${appointment.startTime} hrs until ${appointment.startTime + 1} hrs. Congratulations`,
+                })
+              "
+            >
+              <fa-icon icon="plus" size="sm" class="mr-1" />Details
+            </button>
+          </div>
+          <div v-else>
+            <button class="btn--primary" @click="showAlertDelete(appointment._id)">
+              <fa-icon icon="trash" size="sm" class="mr-1" />Delete
+            </button>
+            <button
+              class="btn--outlined"
+              @click="activateEditingForm(appointment)"
+            >
+              <fa-icon icon="pen" size="sm" class="mr-1" />Edit
+            </button>
+          </div>
+        </li>
+      </ul>
+    </section>
+    <modal-editing-appointment
+      :Appointment="appointment"
+      :show-modal="showEditingForm"
+      @close="closeEditingForm($event)"
+    />
+  </div>
 </template>
 
 <script>
 import axios from "axios";
 import { globalUrl } from "@/constants/constants";
+import ModalEditingAppointment from "@/components/ModalEditingAppointment.vue";
+import Appointment from "@/models/Appointment";
+
 export default {
   name: "SearchAppointments",
+  components: {
+    ModalEditingAppointment,
+  },
   data() {
     return {
+      appointment: new Appointment("", "", ""),
       appointments: [],
       date: this.$route.params.date,
       disableButton: false,
       selectedDate: "",
+      showEditingForm: false,
       todayDate: new Date().toISOString().split("T")[0],
     };
   },
@@ -94,6 +108,17 @@ export default {
     this.getAppointments(this.date);
   },
   methods: {
+    activateEditingForm(appointment) {
+      this.showEditingForm = true;
+      this.appointment = appointment;
+    },
+    closeEditingForm(reload = false) {
+      this.showEditingForm = false;
+
+      if (reload) {
+        this.getAppointments(this.selectedDate);
+      }
+    },
     getAppointments(date = "") {
       let endpoint = `${globalUrl}appointments`;
       if (date.length) {
@@ -159,23 +184,11 @@ export default {
 </script>
 
 <style scoped>
-section {
-  background: rgba(255, 255, 255, 0.95);
-  border: 1px solid #fbfbfb;
-  border-radius: 1.7rem;
-  margin: 2rem auto;
+.card__container {
   min-height: calc(
     100vh - 86px - 98px
   ); /* Less MainNavigation and MainFooter */
-  padding: 2.25rem clamp(1.7rem, 5%, 2.7rem);
   width: clamp(260px, 80%, 700px);
-}
-
-section > header {
-  color: var(--primary);
-  font-size: 2rem;
-  font-weight: 600;
-  margin-bottom: 2rem;
 }
 
 .display-2 {
@@ -212,7 +225,7 @@ ul li + li {
  * Responsive breakpoints
  */
 @media screen and (min-width: 992px) {
-  section {
+  .card__container {
     min-height: calc(
       100vh - 72px - 58px - 4rem
     ); /* Less MainNavigation, MainFooter and Vmargins */
